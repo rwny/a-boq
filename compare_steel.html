@@ -5,37 +5,130 @@
   if (localStorage.getItem('boq_auth') !== 'true') {
     window.location.href = 'login.html';
   }
+  (function() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>เปรียบเทียบข้อมูลเหล็ก 2 แหล่ง</title>
 <style>
+
+:root {
+  --bg: #f5f5f5;
+  --text: #222;
+  --heading: #1a3a5c;
+  --nav-bg: #e0e0e0;
+  --nav-text: #333;
+  --nav-active-bg: #2a5a8c;
+  --nav-active-text: #fff;
+  --th-bg: #3a6a9c;
+  --th-text: #fff;
+  --td-border: #ddd;
+  --row-bg-0: #fff;
+  --row-bg-1: #f8f9fc;
+  --match-bg: #e8f5e9;
+  --diff-bg: #fff3e0;
+  --miss-bg: #ffebee;
+  
+  --border-color: #ddd;
+  --accent: #2a5a8c;
+  --card-bg: #ffffff;
+  --text-main: #222;
+}
+[data-theme="dark"] {
+  --bg: #0a0c10;
+  --text: #c8ccd4;
+  --heading: #00e676;
+  --nav-bg: #12141c;
+  --nav-text: #6b7280;
+  --nav-active-bg: #2a5a8c;
+  --nav-active-text: #fff;
+  --th-bg: #1e2835;
+  --th-text: #fff;
+  --td-border: #181b24;
+  --row-bg-0: #12141c;
+  --row-bg-1: #0a0c10;
+  --match-bg: #0a2212;
+  --diff-bg: #2a1b0c;
+  --miss-bg: #2b0d10;
+  
+  --border-color: #1e2835;
+  --accent: #00e676;
+  --card-bg: #12141c;
+  --text-main: #c8ccd4;
+}
+
+
+/* === Theme Toggle Button === */
+.theme-btn {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background: var(--card-bg, #12141c);
+  border: 1px solid var(--border-color, #1e2835);
+  color: var(--text-main, #c8ccd4);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 110;
+  font-size: 13px;
+  font-family: inherit;
+}
+.theme-btn:hover {
+  border-color: var(--accent, #00e676);
+  color: var(--accent, #00e676);
+  transform: translateY(-1px);
+}
+.theme-btn i, .theme-btn svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
+@media (max-width: 600px) {
+  .theme-btn {
+    position: static;
+    margin: 8px auto 0;
+    display: flex;
+    width: fit-content;
+  }
+}
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#f5f5f5;color:#222;padding:12px}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);transition: background 0.3s, color 0.3s;padding:12px}
 h1{font-size:18px;margin-bottom:4px}
-h2{font-size:15px;margin:10px 0 4px;color:#1a3a5c}
+h2{font-size:15px;margin:10px 0 4px;color:var(--heading)}
 .info{font-size:12px;color:#666;margin-bottom:8px}
 .nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-.nav a{padding:4px 10px;border-radius:4px;font-size:12px;cursor:pointer;background:#e0e0e0;text-decoration:none;color:#333}
-.nav a.active{background:#2a5a8c;color:#fff}
-.match{background:#e8f5e9}
-.diff{background:#fff3e0}
-.miss{background:#ffebee;opacity:0.6}
+.nav a{padding:4px 10px;border-radius:4px;font-size:12px;cursor:pointer;background:var(--nav-bg);text-decoration:none;color:var(--nav-text)}
+.nav a.active{background:var(--nav-active-bg);color:var(--nav-active-text)}
+.match{background:var(--match-bg)}
+.diff{background:var(--diff-bg)}
+.miss{background:var(--miss-bg);opacity:0.6}
 .ok{color:#2e7d32}
 .warn{color:#e65100}
 .err{color:#c62828}
 table{font-size:11px;border-collapse:collapse;width:auto}
-th{background:#3a6a9c;color:#fff;padding:3px 5px;white-space:nowrap;font-size:10px;position:sticky;top:0}
-td{padding:2px 4px;border-bottom:1px solid #ddd;white-space:nowrap}
+th{background:var(--th-bg);color:var(--th-text);padding:3px 5px;white-space:nowrap;font-size:10px;position:sticky;top:0}
+td{padding:2px 4px;border-bottom:1px solid var(--td-border);white-space:nowrap}
 td.r{text-align:right}
 td.l{text-align:left}
-.n0{background:#fff}
-.n1{background:#f8f9fc}
+.n0{background:var(--row-bg-0)}
+.n1{background:var(--row-bg-1)}
 </style>
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
 <h1>🔍 เปรียบเทียบข้อมูลเหล็ก 2 แหล่ง</h1>
+  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="เปลี่ยนโหมดสี">
+    <i data-lucide="sun" id="themeIcon"></i><span id="themeText">Light Mode</span>
+  </button>
 <p class="info">Steel_Table.xls (เดิม) vs Table1Metric (ใหม่) — สีส้ม = ต่างกัน, สีแดง = ไม่มีในอีกแหล่ง</p>
 
 <div class="nav" id="nav">
@@ -149,6 +242,42 @@ function showType(group) {
     if (a.onclick.toString().includes("'"+group+"'")) a.classList.add('active');
   });
 }
+
+// === Theme Toggle Functions ===
+function initThemeToggle() {
+  var theme = localStorage.getItem('theme') || 'dark';
+  updateThemeUI(theme);
+}
+
+function updateThemeUI(theme) {
+  var btn = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+  var text = document.getElementById('themeText');
+  if (!btn || !icon || !text) return;
+  
+  if (theme === 'light') {
+    icon.setAttribute('data-lucide', 'moon');
+    text.textContent = 'Dark Mode';
+  } else {
+    icon.setAttribute('data-lucide', 'sun');
+    text.textContent = 'Light Mode';
+  }
+  
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeUI(newTheme);
+}
+
+initThemeToggle();
 </script>
 </body>
 </html>
