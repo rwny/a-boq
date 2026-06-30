@@ -1,0 +1,163 @@
+/* === Dark Neon Green Theme — Inspired by SaaS Dark+Green Design === */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0c10;color:#c8ccd4;font-family:'Segoe UI','Sarabun','Tahoma',sans-serif;padding:16px;font-size:16px}
+.container{max-width:1400px;margin:0 auto}
+
+/* === Header — sticky top bar === */
+.header{position:sticky;top:0;z-index:100;background:#0a0c10;padding:10px 0 8px;text-align:center;border-bottom:1px solid #1e2835}
+/* === Project Title === */
+.proj-title{font-size:28px;font-weight:700;color:#c8ccd4;text-align:center;padding:8px 0 4px}
+
+
+/* === Metrics === */
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:20px 0}
+.mc{background:#12141c;border-radius:12px;padding:18px;text-align:center;border:1px solid #1e2835;transition:.2s}
+.mc:hover{border-color:#2a3a35;box-shadow:0 0 15px rgba(0,230,118,.06)}
+.mc .l{color:#6b7280;font-size:13px;text-transform:uppercase;letter-spacing:0.5px}
+.mc .v{font-size:28px;font-weight:700;color:#e8eaed;margin-top:6px}
+.mc .v.a{color:#00e676}.mc .v.g{color:#69f0ae}.mc .v.o{color:#fdd835}.mc .v.p{color:#b388ff}
+
+/* === Cards === */
+.card{background:#12141c;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #1e2835;transition:.2s}
+.card:hover{border-color:#2a3a35}
+.card-title{font-size:16px;font-weight:600;color:#00e676;margin-bottom:14px}
+.card-title .b{background:#1a1d28;color:#6b7280;font-size:12px;padding:3px 12px;border-radius:12px;border:1px solid #2a3535}
+
+/* === Tables === */
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{background:#0a0c10;color:#6b7280;font-weight:600;padding:10px 12px;text-align:left;border-bottom:2px solid #1e2835;cursor:pointer;transition:.15s}
+th:hover{color:#9aa0a6}
+td{padding:8px 12px;border-bottom:1px solid #181b24}
+.n{text-align:right;font-family:Consolas,'Courier New',monospace;font-size:14px}
+tr:hover td{background:#181b24!important}
+
+/* === Section Tags === */
+.tg{display:inline-block;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;min-width:34px;text-align:center;white-space:nowrap}
+.t-A{background:#0a1a14;color:#4ade80;border:1px solid rgba(74,222,128,.2)}
+.t-B{background:#0a1a14;color:#34d399;border:1px solid rgba(52,211,153,.2)}
+.t-C{background:#1a1a08;color:#facc15;border:1px solid rgba(250,204,21,.2)}
+.t-D{background:#1a0a1a;color:#c084fc;border:1px solid rgba(192,132,252,.2)}
+.t-E{background:#0a0a1a;color:#818cf8;border:1px solid rgba(129,140,248,.2)}
+.t-FURN{background:#1a0a0a;color:#f87171;border:1px solid rgba(248,113,113,.2)}
+.t-SPEC{background:#121418;color:#9ca3af;border:1px solid rgba(156,163,175,.15)}
+.tg .sn{color:inherit;font-weight:400;font-size:11px;margin-left:3px;opacity:.8}
+
+/* === Section left border === */
+.sl-A{border-left:3px solid #4ade80}.sl-B{border-left:3px solid #34d399}
+.sl-C{border-left:3px solid #facc15}.sl-D{border-left:3px solid #c084fc}
+.sl-E{border-left:3px solid #818cf8}.sl-FURN{border-left:3px solid #f87171}
+.sl-SPEC{border-left:3px solid #4b5563}
+
+/* === Summary expand === */
+.exp{cursor:pointer}
+.exp td:first-child{padding-left:28px;position:relative}
+.exp td:first-child::before{content:"\25b6";position:absolute;left:8px;font-size:9px;color:#00e676;transition:transform .2s}
+.exp.o td:first-child::before{transform:rotate(90deg)}
+.dw{display:none}.dw.o{display:table-row}
+.dw td{padding:0!important;background:#0d0f14!important}
+.di{padding:8px 8px 8px 32px}
+.dt{width:100%;border-collapse:collapse;font-size:14px}
+.dt th{background:#080a0e;padding:5px 10px;font-size:12px}
+.dt td{padding:4px 10px;font-size:13px;color:#9aa0a6;background:transparent!important}
+
+/* === Controls === */
+.ctrl{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.ctrl input[type=text]{background:#0a0c10;border:1px solid #1e2835;border-radius:6px;padding:9px 14px;color:#c8ccd4;font-size:16px;flex:1;min-width:180px;outline:none;transition:.2s}
+.ctrl input[type=text]:focus{border-color:#00e676}
+.ctrl label{display:flex;align-items:center;gap:5px;color:#6b7280;font-size:14px;cursor:pointer}
+.ctrl input[type=checkbox]{accent-color:#00e676}
+
+/* === Bar Chart === */
+.bc{margin-top:4px}
+.br{display:flex;align-items:center;margin-bottom:10px;gap:8px}
+.bl{width:180px;font-size:14px;text-align:right;flex-shrink:0;color:#9aa0a6;font-weight:500}
+.bt{flex:1;height:32px;background:#0a0c10;border-radius:6px;overflow:hidden}
+.bf{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding:0 12px;font-size:13px;color:#0a0c10;font-weight:700;transition:.3s;letter-spacing:0.3px}
+.bf:hover{filter:brightness(1.15)}
+.bv{font-size:10px;color:#6b7280;width:110px;text-align:right;flex-shrink:0;font-family:Consolas,monospace}
+
+/* === Footer === */
+.ft{text-align:center;color:#4b5563;font-size:11px;padding:16px 0}
+
+/* === Top Navigation (Neon Green) — horizontal scroll, no wrap === */
+.topnav{display:flex;gap:6px;overflow-x:auto;margin:14px 0 6px;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:#00e676 transparent}
+.topnav::-webkit-scrollbar{height:3px}
+.topnav::-webkit-scrollbar-thumb{background:#00e676;border-radius:3px}
+.tn{background:#0a0c10;color:#6b7280;border:1px solid #1e2835;border-radius:10px;padding:8px 20px;font-size:15px;cursor:pointer;transition:.2s;text-decoration:none;user-select:none}
+.tn:hover{background:#12141c;color:#c8ccd4;border-color:#2a3a35}
+.tn.tn-active{background:linear-gradient(135deg,#00e676,#00c853);color:#0a0c10;border-color:#00e676;font-weight:700;box-shadow:0 0 20px rgba(0,230,118,.2)}
+.tn.tn-active:hover{background:linear-gradient(135deg,#00c853,#00a847)}
+
+/* === Project full name subtitle === */
+.proj-fullname{font-size:14px;font-weight:400;color:#6b7280;display:block;margin-top:2px}
+
+/* === Big Search === */
+.big-search{width:100%;background:#0a0c10;border:2px solid #1e2835;border-radius:12px;padding:14px 18px;color:#e8eaed;font-size:18px;outline:none;transition:.25s;margin-bottom:12px}
+.big-search:focus{border-color:#00e676;box-shadow:0 0 0 3px rgba(0,230,118,.12)}
+.big-search::placeholder{color:#4b5563;font-size:16px}
+
+/* === Detail table wrapper (prevent flicker / scroll jump) === */
+#detTable{table-layout:fixed;overflow-anchor:none}
+#detTable th:nth-child(1){width:75px}
+#detTable th:nth-child(2){width:42px}
+#detTable th:nth-child(3){width:auto}
+#detTable th:nth-child(4){width:60px}
+#detTable th:nth-child(5){width:42px}
+#detTable th:nth-child(6){width:70px}
+#detTable th:nth-child(7){width:85px}
+#detTable th:nth-child(8){width:70px}
+#detTable th:nth-child(9){width:85px}
+#detTable th:nth-child(10){width:90px}
+
+/* === Rate columns (compact) === */
+#detTable td:nth-child(6),
+#detTable td:nth-child(8){font-size:12px;color:#6b7280}
+#dtb td:nth-child(6),
+#dtb td:nth-child(8){font-size:12px;color:#6b7280}
+.dt td:nth-child(5),
+.dt td:nth-child(7){font-size:11px;color:#6b7280}
+
+/* === Version badge (bottom-right) === */
+.ver{position:fixed;bottom:6px;right:10px;font-size:14px;color:#2a3a35;font-family:Consolas,monospace;z-index:999;user-select:none;pointer-events:none}
+
+/* === Highlight === */
+mark{background:#00e676;color:#0a0c10;padding:1px 4px;border-radius:3px;font-weight:600}
+.hl-match td{background:#0a1a12!important}
+.hl-match td:last-child{color:#4ade80;font-weight:700}
+
+/* === Section tag highlight on search match === */
+.hl-section{background:linear-gradient(135deg,#e74c3c,#c0392b)!important;color:#fff!important;border-color:#e74c3c!important;box-shadow:0 0 12px rgba(231,76,60,.4);animation:secPulse .8s ease-in-out}
+@keyframes secPulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+/* === Section name inside tag === */
+.tg .sn{color:inherit;font-weight:400;font-size:11px;margin-left:3px;opacity:.8}
+
+/* === Refresh button === */
+.btn-refresh {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-refresh:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+/* === Search section (sticky on focus) === */
+.search-section{position:sticky;top:0;z-index:10;background:#0a0c10;padding-top:8px;margin:0 -16px;padding-left:16px;padding-right:16px}
+
+/* === Project tag badges === */
+.proj-tag{display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:6px;vertical-align:middle}
+.pj-AR25{background:#0a1a14;color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.pj-AR24{background:#0a1a14;color:#34d399;border:1px solid rgba(52,211,153,.3)}
+.tn-special { color:#ffd700 !important; padding:10px 14px; text-decoration:none; display:inline-block; font-size:14px; border:1px solid #ffd70044; border-radius:4px; margin:4px 2px; }
+.tn-special:hover { background:#1a4a7c; text-decoration:underline; }

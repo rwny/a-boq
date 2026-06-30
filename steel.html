@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตารางเหล็กรูปพรรณ ครบทุกข้อมูล</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0c10;color:#c8ccd4;font-family:'Segoe UI','Sarabun','Tahoma',sans-serif;padding:12px;font-size:15px}
+.header{position:sticky;top:0;z-index:100;background:#0a0c10;padding:10px 0 6px;text-align:center;border-bottom:1px solid #1e2835}
+.header h1{font-size:22px;font-weight:700;color:#e8eaed;margin:0}
+.header p{font-size:12px;color:#6b7280;margin:0}
+.topnav{display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 4px}
+.topnav a{background:#0a0c10;color:#6b7280;border:1px solid #1e2835;border-radius:10px;padding:6px 14px;font-size:14px;cursor:pointer;transition:.2s;text-decoration:none;white-space:nowrap;user-select:none}
+.topnav a:hover{background:#12141c;color:#c8ccd4;border-color:#2a3a35}
+.topnav a.active{background:linear-gradient(135deg,#00e676,#00c853);color:#0a0c10;border-color:#00e676;font-weight:700;box-shadow:0 0 20px rgba(0,230,118,.2)}
+.search-box{padding:8px 0;display:flex;gap:10px;align-items:center}
+.search-box input{flex:1;min-width:120px;background:#0a0c10;border:2px solid #1e2835;border-radius:12px;padding:10px 14px;color:#e8eaed;font-size:15px;outline:none;transition:.25s}
+.search-box input:focus{border-color:#00e676;box-shadow:0 0 0 3px rgba(0,230,118,.12)}
+.search-box input::placeholder{color:#4b5563}
+.search-box .count{font-size:13px;color:#6b7280;white-space:nowrap}
+.table-wrap{overflow-y:auto;max-height:calc(100vh - 175px);margin:0}
+table{width:auto;border-collapse:collapse;font-size:14px;table-layout:fixed}
+th{background:#0a0c10;color:#6b7280;font-weight:600;padding:8px 10px;white-space:nowrap;position:sticky;top:0;font-size:13px;border-bottom:2px solid #1e2835;letter-spacing:0}
+th:first-child{width:40px}
+th:nth-child(2){width:200px}
+th:nth-child(3),th:nth-child(4){width:95px}
+th:nth-child(n+5){width:75px}
+td{padding:6px 10px;border-bottom:1px solid #181b24;white-space:nowrap}
+td.r{text-align:right;font-family:Consolas,'Courier New',monospace;font-size:13px;color:#9aa0a6}
+td:first-child{text-align:left;font-weight:600;color:#00e676}
+td.col-hover{background:#2a3a4a !important}
+th.col-hover{background:#3a5a7a !important;color:#e8eaed}
+.hl{background:#00e676;color:#0a0c10;padding:1px 4px;border-radius:3px;font-weight:600}
+tr:hover td{background:#2a3a4a !important}
+tr:nth-child(even){background:transparent}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a3a5c;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.type-badge{display:inline-block;padding:1px 5px;border-radius:6px;font-size:10px;font-weight:600;color:#fff}
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+    <div>
+      <h1><i data-lucide="ruler" style="width:20px;height:20px;vertical-align:-3px"></i> ตารางเหล็ก</h1>
+      <p id="headerInfo" style="font-size:11px;opacity:.7;margin:0"></p>
+    </div>
+    <a href="dashboard.html" style="color:#6b7280;font-size:13px;text-decoration:none;white-space:nowrap;transition:.2s" onmouseover="this.style.color='#00e676'" onmouseout="this.style.color='#6b7280'"><i data-lucide="layout-dashboard" style="width:14px;height:14px;vertical-align:-2px"></i> Dashboard</a>
+  </div>
+</div>
+
+<div class="topnav" id="topNav"></div>
+
+<div class="search-box">
+  <i data-lucide="search" style="width:18px;height:18px;color:#4b5563;flex-shrink:0"></i>
+  <input type="text" id="searchInput" placeholder="ค้นหา..." oninput="renderTable()">
+  <span class="count" id="countInfo"></span>
+</div>
+<div class="toast" id="toast">✅ คัดลอกแล้ว</div>
+<div class="table-wrap">
+<table>
+<thead><tr id="headerRow"></tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<script>
+// Column definitions for each steel type: [key, label, decimals]
+var COLUMNS = {
+  'Wide Flange Shape': [
+    ['size','ขนาด',0],['weight_kg_m','นน.กก./ม.',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['A_mm','A mm',1],['B_mm','B mm',1],
+    ['tw_mm','tw mm',1],['tf_mm','tf mm',1],['r_mm','r mm',1],['area_cm2','พื้นที่ cm²',1],
+    ['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0],['rx_cm','rx cm',2],['ry_cm','ry cm',2],
+    ['Sx_cm3','Sx cm³',0],['Sy_cm3','Sy cm³',0]
+  ],
+  'Channel': [
+    ['size','ขนาด',0],['weight_kg_m','นน.กก./ม.',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['area_cm2','พื้นที่ cm²',1],
+    ['A_mm','A mm',1],['B_mm','B mm',1],['tw_mm','tw mm',1],['tf_mm','tf mm',1],
+    ['r1_mm','r₁ mm',1],['r2_mm','r₂ mm',1],['Cy_mm','Cy mm',2],
+    ['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0],
+    ['rx_cm','rx cm',2],['ry_cm','ry cm',2],
+    ['Sx_cm3','Sx cm³',0],['Sy_cm3','Sy cm³',0]
+  ],
+  'I - Beam': [
+    ['A_mm','A mm',1],['B_mm','B mm',1],['weight_kg_m','นน.กก./ม.',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['t1_mm','t₁ mm',1],['t2_mm','t₂ mm',1],
+    ['r1_mm','r₁ mm',1],['r2_mm','r₂ mm',1],
+    ['area_cm2','พื้นที่ cm²',1],
+    ['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0],
+    ['rx_cm','rx cm',2],['ry_cm','ry cm',2],
+    ['Sx_cm3','Sx cm³',0],['Sy_cm3','Sy cm³',0]
+  ],
+  'Light_lip_Channel': [
+    ['size','ขนาด',0],['weight_kg_m','นน.กก./ม.',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['t_mm','t mm',1],['area_cm2','พื้นที่ cm²',1],
+    ['Cx_cm','Cx cm',2],['Cy_cm','Cy cm',2],
+    ['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0],
+    ['rx_cm','rx cm',2],['ry_cm','ry cm',2],
+    ['Sx_cm3','Sx cm³',0],['Sy_cm3','Sy cm³',0],
+    ['Zx_cm3','Zx cm³',0],['Zy_cm3','Zy cm³',0]
+  ],
+  'Equal_Angles': [
+    ['A_mm','A mm',1],['B_mm','B mm',1],['weight_kg_m','นน.กก./ม.',2],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['t_mm','t mm',1],['r1_mm','r₁ mm',1],['r2_mm','r₂ mm',1],
+    ['area_cm2','พื้นที่ cm²',2],
+    ['Cx_cm','Cx cm',3],['Cy_cm','Cy cm',3],
+    ['Ix_cm4','Ix cm⁴',2],['Iy_cm4','Iy cm⁴',2],
+    ['maxIu_cm4','Iu₊ cm⁴',2],['minIv_cm4','Iv₋ cm⁴',2],
+    ['rx_cm','rx cm',3],['ry_cm','ry cm',3],
+    ['maxRu_cm','ru₊ cm',3],['minRv_cm','rv₋ cm',3],
+    ['Sx_cm3','Sx cm³',2],['Sy_cm3','Sy cm³',2]
+  ],
+  'Unequal_Angle': [
+    ['A_mm','A mm',1],['B_mm','B mm',1],['weight_kg_m','นน.กก./ม.',2],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['t_mm','t mm',1],['r1_mm','r₁ mm',1],['r2_mm','r₂ mm',1],
+    ['area_cm2','พื้นที่ cm²',2],
+    ['Cx_cm','Cx cm',3],['Cy_cm','Cy cm',3],
+    ['Ix_cm4','Ix cm⁴',1],['Iy_cm4','Iy cm⁴',1],
+    ['maxIu_cm4','Iu₊ cm⁴',1],['minIv_cm4','Iv₋ cm⁴',1],
+    ['rx_cm','rx cm',3],['ry_cm','ry cm',3],
+    ['Sx_cm3','Sx cm³',1],['Sy_cm3','Sy cm³',1]
+  ],
+  'BLACK PLATE': [
+    ['size','ขนาด',0],['weight_kg','นน.กก./แผ่น',1]
+  ],
+  'Round Bar': [
+    ['size','ขนาด',0],['weight_kg','นน.กก./เส้น',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4]
+  ],
+  'GALVANIZED': [
+    ['size','ขนาด',0],
+    ['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+    ['yellow_thick_mm','Y-หนา mm',2],['yellow_weight_kg_m','Y-นน. กก./ม.',2],
+    ['marine_thick_mm','M-หนา mm',2],['marine_weight_kg_m','M-นน. กก./ม.',2]
+  ]
+};
+
+// Common columns for new Metric profiles
+var PROFILES_COLS = [
+  ['size','ขนาด',0],['weight_kg_m','นน.กก./ม.',1],['surf_area_m2_per_m','พื้นที่ผิว ตร.ม./ม.',4],
+  ['A_mm','D mm',1],['B_mm','B mm',1],['tw_mm','tw mm',1],['tf_mm','tf mm',1],
+  ['area_cm2','พื้นที่ cm²',1],
+  ['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0],
+  ['rx_cm','rx cm',2],['ry_cm','ry cm',2],
+  ['Sx_cm3','Sx cm³',0],['Sy_cm3','Sy cm³',0],
+  ['J_cm4','J cm⁴',1],['Cw_cm6','Cw cm⁶',1]
+];
+['Wide_Flange','I-Beam','C-Channel_Back','C-Channel_In','Equal_Angle','Equal_Angle_Light','UnEqual_Angle','UnEqual_Angle_Light','UnEqual_Angle_Short','T-Profile'].forEach(function(t){
+  COLUMNS[t] = PROFILES_COLS;
+});
+
+var TYPE_ORDER = [
+  ['Wide_Flange','ปีกกว้าง H-Beam (AISC)'],
+  ['I-Beam','I-Beam (AISC)'],
+  ['Channel','รางน้ำ Channel (AISC)'],
+  ['Light_lip_Channel','ตัว C (Light Lip)'],
+  ['C-Channel_Back','ตัวซี CCB'],
+  ['C-Channel_In','ตัวซี CCI'],
+  ['Equal_Angle','ฉากเท่า Equal (AISC)'],
+  ['Equal_Angle_Light','ฉากเท่า (บาง)'],
+  ['UnEqual_Angle','ฉากไม่เท่า (AISC)'],
+  ['UnEqual_Angle_Light','ฉากไม่เท่า (บาง)'],
+  ['UnEqual_Angle_Short','ฉากไม่เท่า (สั้น)'],
+  ['T-Profile','ตัวที T-Profile (AISC)'],
+  ['BLACK PLATE','BLACK PLATE'],
+  ['Round Bar','Round Bar'],
+  ['GALVANIZED','GALVANIZED PIPE']
+];
+
+var ALL_DATA = [];
+fetch('steel_all.json').then(r=>r.json()).then(d=>{ALL_DATA=d;init();});
+
+function init() {
+  // Build nav
+  var nav = document.getElementById('topNav');
+  var h = '';
+  TYPE_ORDER.forEach(function(p){h+='<a data-t="'+p[0]+'">'+p[1]+'</a>';});
+  nav.innerHTML = h;
+  // Activate first tab
+  var firstTab = nav.querySelector('a');
+  if (firstTab) { firstTab.classList.add('active'); window.currentType = firstTab.dataset.t; }
+  nav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      nav.querySelectorAll('a').forEach(function(x){x.classList.remove('active');});
+      a.classList.add('active');
+      window.currentType = a.dataset.t;
+      renderTable();
+    });
+  });
+  document.getElementById('headerInfo').textContent = '422 รายการ';
+  renderTable();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function nf(v,d) {
+  if (v===null||v===undefined||v==='-') return '-';
+  var n = Number(v);
+  return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+
+function copyText(el) {
+  var text = el.textContent.trim();
+  if (!text) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    var toast = document.getElementById('toast');
+    toast.textContent = '✅ '+text;
+    toast.classList.add('show');
+    setTimeout(function(){toast.classList.remove('show');}, 1500);
+  }
+}
+
+function renderTable() {
+  var active = document.querySelector('#topNav .active');
+  var curType = active ? active.dataset.t : 'ALL';
+  var q = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+  
+  var filtered = ALL_DATA.filter(function(d){
+    if (curType!=='ALL' && d._type!==curType) return false;
+    if (q) {
+      // Search only in size/name column
+      var sz = (d.size || d.section_name || '').toLowerCase();
+      return sz.indexOf(q) >= 0;
+    }
+    return true;
+  });
+  
+  var cols = COLUMNS[curType];
+  
+  // Build header
+  var hdr = document.getElementById('headerRow');
+  var hs = '<th style="text-align:left">#</th>';
+  cols.forEach(function(c){
+    var align = (typeof filtered[0]?.[c[0]] === 'number') ? ' class="r"' : ' style="text-align:left"';
+    hs += '<th' + align + '>' + c[1] + '</th>';
+  });
+  hdr.innerHTML = hs;
+  
+  // Build body
+  var tbody = document.getElementById('tableBody');
+  var html = '';
+  filtered.forEach(function(d,i){
+    html += '<tr><td class="first-col">'+(i+1)+'</td>';
+    cols.forEach(function(c){
+      var val = d[c[0]];
+      if (val===null||val===undefined||val==='-') {
+        html += '<td class="r" onclick="copyText(this)" title="คลิกคัดลอก">-</td>';
+      } else if (typeof val === 'number') {
+        html += '<td class="r" onclick="copyText(this)" title="คลิกคัดลอก">'+nf(val,c[2])+'</td>';
+      } else {
+        // Highlight if searching
+        var displayVal = val;
+        if (q && typeof val === 'string') {
+          var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+          displayVal = val.replace(regex, '<span class="hl">$1</span>');
+        }
+        html += '<td class="first-col" onclick="copyText(this)" title="คลิกคัดลอก">'+displayVal+'</td>';
+      }
+    });
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+  document.getElementById('countInfo').textContent = filtered.length+' รายการ';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  
+  // Add column hover + cell focus (row + column)
+  function highlightColumn(ci, on){
+    if (ci === 0) return;  // skip # column
+    document.querySelectorAll('tbody td:nth-child('+(ci+1)+')').forEach(function(td){
+      td.classList.toggle('col-hover', on);
+    });
+    var ths = document.querySelectorAll('thead th, #headerRow th');
+    if (ths[ci]) ths[ci].classList.toggle('col-hover', on);
+  }
+  document.querySelectorAll('th').forEach(function(th, ci){
+    th.addEventListener('mouseenter', function(){ highlightColumn(ci, true); });
+    th.addEventListener('mouseleave', function(){ highlightColumn(ci, false); });
+  });
+  document.querySelectorAll('tbody td').forEach(function(td){
+    td.addEventListener('mouseenter', function(){
+      var ci = td.cellIndex;
+      highlightColumn(ci, true);
+      if (ci === 0) return;  // skip # column
+      td.style.setProperty('background', '#fdd835', 'important');
+      td.style.setProperty('color', '#0a0c10', 'important');
+      td.style.setProperty('font-weight', '700', 'important');
+      td.style.setProperty('box-shadow', '0 0 8px rgba(253,216,53,.4)', 'important');
+    });
+    td.addEventListener('mouseleave', function(){
+      td.style.background = '';
+      td.style.color = '';
+      td.style.fontWeight = '';
+      td.style.boxShadow = '';
+      document.querySelectorAll('.col-hover').forEach(function(c){
+        c.classList.remove('col-hover');
+      });
+      document.querySelectorAll('.cell-focus').forEach(function(c){
+        c.classList.remove('cell-focus');
+      });
+    });
+  });
+}
+</script>
+</body>
+</html>

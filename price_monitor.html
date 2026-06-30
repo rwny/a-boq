@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Monitor — BOQ Dashboard</title>
+<link rel="stylesheet" href="dashboard.css">
+<style>
+:root { --bg: #0a0a0a; --card: #1a1a1a; --border: #2a2a2a; --text: #e0e0e0; --dim: #888; --accent: #00e676; --red: #ef4444; --green: #22c55e; }
+body { font-family: 'Noto Sans Thai','Segoe UI',sans-serif; background: var(--bg); color: var(--text); margin:0; }
+.topnav { display:flex; gap:4px; padding:8px 16px; background:var(--card); border-bottom:1px solid var(--border); overflow-x:auto; }
+.topnav a { padding:6px 14px; border-radius:6px; text-decoration:none; color:var(--dim); font-size:13px; white-space:nowrap; }
+.topnav a:hover { background:var(--border); color:var(--text); }
+.topnav a.active { background:var(--accent); color:#000; font-weight:600; }
+.container { max-width:1400px; margin:0 auto; padding:16px; }
+.header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.header h1 { font-size:20px; margin:0; }
+.stats { display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+.stat-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 20px; flex:1; min-width:120px; }
+.stat-card .label { font-size:12px; color:var(--dim); }
+.stat-card .value { font-size:24px; font-weight:700; }
+.stat-card .value.green { color:var(--green); }
+.stat-card .value.red { color:var(--red); }
+.stat-card .value.accent { color:var(--accent); }
+
+.filters { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.filters input, .filters select { background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:6px; font-size:13px; }
+.filters input { flex:1; min-width:200px; }
+.filters select { min-width:120px; }
+
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { background:var(--card); padding:8px 10px; text-align:left; border-bottom:2px solid var(--accent); cursor:pointer; white-space:nowrap; position:sticky; top:0; z-index:1; }
+th:hover { color:var(--accent); }
+td { padding:6px 10px; border-bottom:1px solid var(--border); }
+tr:hover td { background:rgba(0,230,118,0.03); }
+.n { text-align:right; font-variant-numeric:tabular-nums; }
+.c { text-align:center; }
+.up { color:var(--red); }
+.down { color:var(--green); }
+.tag { display:inline-block; padding:1px 6px; border-radius:3px; font-size:11px; }
+.tag-found { background:#065f46; color:#6ee7b7; }
+.tag-missing { background:#451a03; color:#fbbf24; }
+.tag-up { background:#7f1d1d; color:#fca5a5; }
+.tag-down { background:#064e3b; color:#6ee7b7; }
+
+.mini-chart { width:120px; height:28px; display:inline-block; position:relative; }
+.mini-chart svg { width:100%; height:100%; }
+.mini-chart .line { fill:none; stroke:var(--accent); stroke-width:1.5; }
+
+.weekly-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:2px 8px; border-radius:12px; }
+.weekly-badge.ok { background:#065f46; color:#6ee7b7; }
+.weekly-badge.pending { background:#451a03; color:#fbbf24; }
+
+.proj-tag { display:inline-block; font-size:10px; padding:0 4px; border-radius:2px; background:var(--border); color:var(--dim); margin-right:3px; }
+
+.modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center; }
+.modal.show { display:flex; }
+.modal-content { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:800px; width:90%; max-height:80vh; overflow-y:auto; }
+.modal-content h2 { margin:0 0 12px; font-size:16px; }
+.close-btn { float:right; cursor:pointer; color:var(--dim); font-size:20px; }
+.modal-chart { width:100%; height:250px; }
+
+.search-urls { background:var(--bg); padding:8px; border-radius:6px; font-size:12px; font-family:monospace; white-space:pre-wrap; word-break:break-all; margin:8px 0; }
+.btn { background:var(--accent); color:#000; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:600; }
+.btn:hover { opacity:0.9; }
+.btn-sm { padding:3px 8px; font-size:11px; }
+
+.pagination { display:flex; gap:4px; margin-top:12px; justify-content:center; }
+.pagination button { background:var(--card); border:1px solid var(--border); color:var(--text); padding:4px 10px; border-radius:4px; cursor:pointer; }
+.pagination button:hover { border-color:var(--accent); }
+.pagination button.active { background:var(--accent); color:#000; }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <a href="dashboard.html">⬅ BOQ Dashboard</a>
+  <a class="active">📊 Price Monitor</a>
+  <a href="#" onclick="showSearchUrls()">🔍 ค้นหาราคา</a>
+</div>
+
+<div class="container">
+<div class="header">
+  <h1>📈 Price Monitor</h1>
+  <span style="font-size:12px;color:var(--dim);margin-left:auto">อัพเดท: <span id="lastUpdate">—</span></span>
+</div>
+
+<div class="stats" id="stats">
+  <div class="stat-card"><div class="label">รายการทั้งหมด</div><div class="value accent" id="totalItems">—</div></div>
+  <div class="stat-card"><div class="label">เจอราคาตลาด</div><div class="value green" id="foundItems">—</div></div>
+  <div class="stat-card"><div class="label">ยังไม่เจอ</div><div class="value" id="missingItems" style="color:#fbbf24">—</div></div>
+  <div class="stat-card"><div class="label">ราคาขึ้น</div><div class="value red" id="upItems">—</div></div>
+  <div class="stat-card"><div class="label">ราคาลง</div><div class="value green" id="downItems">—</div></div>
+</div>
+
+<div class="filters">
+  <input type="text" id="searchBox" placeholder="🔍 ค้นหารายการ..." oninput="filterTable()">
+  <select id="sectionFilter" onchange="filterTable()">
+    <option value="">ทุกหมวด</option>
+    <option value="A">A โครงสร้าง</option>
+    <option value="B">B สถาปัตย์</option>
+    <option value="C">C ไฟฟ้า</option>
+    <option value="D">D A/C</option>
+    <option value="E">E SAN</option>
+    <option value="FURN">FURN</option>
+    <option value="SPEC">SPEC</option>
+  </select>
+  <select id="statusFilter" onchange="filterTable()">
+    <option value="">สถานะทั้งหมด</option>
+    <option value="found">เจอราคา</option>
+    <option value="missing">ไม่เจอ</option>
+    <option value="up">ราคาขึ้น</option>
+    <option value="down">ราคาลง</option>
+  </select>
+  <button class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
+</div>
+
+<table>
+<thead><tr>
+  <th onclick="sortTable(0)">#</th>
+  <th onclick="sortTable(1)" style="min-width:200px">รายการ</th>
+  <th onclick="sortTable(2)">หมวด</th>
+  <th class="n" onclick="sortTable(3)">ราคาเรา<br><small>@วัสดุ</small></th>
+  <th class="n" onclick="sortTable(4)">ราคาตลาด<br><small>ล่าสุด</small></th>
+  <th class="n" onclick="sortTable(5)">ต่าง<br><small>%</small></th>
+  <th class="c" onclick="sortTable(6)">แนวโน้ม</th>
+  <th onclick="sortTable(7)">แหล่ง</th>
+  <th class="c" onclick="sortTable(8)">บันทึก</th>
+  <th onclick="sortTable(9)">สถานะ</th>
+</tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div class="pagination" id="pagination"></div>
+</div>
+
+<!-- Modal for detail -->
+<div class="modal" id="detailModal">
+<div class="modal-content">
+  <span class="close-btn" onclick="closeModal()">&times;</span>
+  <h2 id="modalTitle">รายละเอียด</h2>
+  <div id="modalBody"></div>
+</div>
+</div>
+
+<!-- Modal for search URLs -->
+<div class="modal" id="urlModal">
+<div class="modal-content">
+  <span class="close-btn" onclick="document.getElementById('urlModal').classList.remove('show')">&times;</span>
+  <h2>🔍 URL สำหรับค้นหาราคา</h2>
+  <p style="font-size:13px;color:var(--dim)">เปิด link เหล่านี้ใน browser เพื่อหาราคาสินค้า</p>
+  <div id="searchUrlContent"></div>
+</div>
+</div>
+
+<script>
+var DATA = [];
+var SORT_COL = 0, SORT_DIR = 1, PAGE = 0, PER_PAGE = 30;
+
+function loadData() {
+  fetch('price_report.json')
+    .then(r => r.json())
+    .then(d => {
+      DATA = d;
+      updateStats();
+      renderTable();
+      updateLastUpdate();
+    })
+    .catch(e => {
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#555">⚠️ ยังไม่มีข้อมูลราคา — กด "ค้นหาราคา" เพื่อเริ่มต้น</td></tr>';
+    });
+}
+
+function updateStats() {
+  var total = DATA.length;
+  var found = DATA.filter(d => d.latest_price).length;
+  var missing = total - found;
+  var up = DATA.filter(d => d.change_pct && d.change_pct > 0).length;
+  var down = DATA.filter(d => d.change_pct && d.change_pct < 0).length;
+  
+  document.getElementById('totalItems').textContent = total;
+  document.getElementById('foundItems').textContent = found;
+  document.getElementById('missingItems').textContent = missing;
+  document.getElementById('upItems').textContent = up;
+  document.getElementById('downItems').textContent = down;
+}
+
+function updateLastUpdate() {
+  var dates = DATA.filter(d => d.last_updated).map(d => d.last_updated);
+  if (dates.length) {
+    dates.sort().reverse();
+    document.getElementById('lastUpdate').textContent = dates[0];
+  }
+}
+
+function filterTable() { PAGE = 0; renderTable(); }
+
+function getFilteredData() {
+  var q = document.getElementById('searchBox').value.toLowerCase();
+  var sec = document.getElementById('sectionFilter').value;
+  var status = document.getElementById('statusFilter').value;
+  
+  return DATA.filter(d => {
+    if (q && !d.desc.toLowerCase().includes(q)) return false;
+    if (sec && d.section !== sec) return false;
+    if (status === 'found' && !d.latest_price) return false;
+    if (status === 'missing' && d.latest_price) return false;
+    if (status === 'up' && (!d.change_pct || d.change_pct <= 0)) return false;
+    if (status === 'down' && (!d.change_pct || d.change_pct >= 0)) return false;
+    return true;
+  });
+}
+
+function renderTable() {
+  var filtered = getFilteredData();
+  
+  // Sort
+  filtered.sort((a, b) => {
+    var va, vb;
+    switch(SORT_COL) {
+      case 0: va = a.id; vb = b.id; break;
+      case 1: va = a.desc; vb = b.desc; break;
+      case 2: va = a.section; vb = b.section; break;
+      case 3: va = a.our_rate || 0; vb = b.our_rate || 0; break;
+      case 4: va = a.latest_price || 0; vb = b.latest_price || 0; break;
+      case 5: va = a.change_pct || 0; vb = b.change_pct || 0; break;
+      case 6: va = a.change_pct || 0; vb = b.change_pct || 0; break;
+      case 7: va = a.source || ''; vb = b.source || ''; break;
+      case 8: va = a.snapshots || 0; vb = b.snapshots || 0; break;
+      case 9: va = a.latest_price ? 1 : 0; vb = b.latest_price ? 1 : 0; break;
+      default: va = a.id; vb = b.id;
+    }
+    if (typeof va === 'string') return SORT_DIR * va.localeCompare(vb);
+    return SORT_DIR * (va - vb);
+  });
+  
+  // Paginate
+  var start = PAGE * PER_PAGE;
+  var pageItems = filtered.slice(start, start + PER_PAGE);
+  
+  var h = '';
+  pageItems.forEach(d => {
+    var pct = d.change_pct;
+    var pctStr = pct !== null && pct !== undefined ? (pct > 0 ? '+' : '') + pct.toFixed(1) + '%' : '—';
+    var pctClass = pct > 0 ? 'up' : pct < 0 ? 'down' : '';
+    var statusTag = d.latest_price ? '<span class="tag tag-found">✓</span>' : '<span class="tag tag-missing">—</span>';
+    var trendSvg = '';
+    if (d.timeline && d.timeline.length > 1) {
+      var pts = d.timeline.map(t => t.price).filter(p => p);
+      if (pts.length > 1) {
+        var min = Math.min(...pts), max = Math.max(...pts), range = (max - min) || 1;
+        var w = 120, hh = 28;
+        var xStep = w / (pts.length - 1);
+        var path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + (i * xStep).toFixed(1) + ',' + ((1 - (p - min) / range) * (hh - 4) + 2).toFixed(1)).join(' ');
+        var color = pts[pts.length - 1] >= pts[0] ? 'var(--green)' : 'var(--red)';
+        trendSvg = '<div class="mini-chart"><svg viewBox="0 0 120 28"><path class="line" d="' + path + '" stroke="' + color + '"/></svg></div>';
+      }
+    }
+    var diff = d.latest_price && d.our_rate ? ((d.latest_price - d.our_rate) / d.our_rate * 100).toFixed(1) : '—';
+    var diffClass = diff !== '—' ? (diff > 0 ? 'up' : diff < 0 ? 'down' : '') : '';
+    
+    h += '<tr onclick="showDetail(' + d.id + ')" style="cursor:pointer">';
+    h += '<td>' + d.id + '</td>';
+    h += '<td>' + d.desc + '</td>';
+    h += '<td class="c"><span class="tg t-' + d.section + '">' + d.section + '</span></td>';
+    h += '<td class="n">' + (d.our_rate ? numberFormat(d.our_rate) : '—') + '</td>';
+    h += '<td class="n">' + (d.latest_price ? numberFormat(d.latest_price) : '—') + '</td>';
+    h += '<td class="n ' + diffClass + '">' + diff + '</td>';
+    h += '<td class="c">' + trendSvg + '</td>';
+    h += '<td>' + (d.source || '—') + '</td>';
+    h += '<td class="c">' + (d.snapshots || 0) + '</td>';
+    h += '<td class="c">' + statusTag + '</td>';
+    h += '</tr>';
+  });
+  
+  document.getElementById('tableBody').innerHTML = h;
+  
+  // Pagination
+  var totalPages = Math.ceil(filtered.length / PER_PAGE);
+  var ph = '';
+  for (var i = 0; i < totalPages && i < 15; i++) {
+    ph += '<button class="' + (i === PAGE ? 'active' : '') + '" onclick="goPage(' + i + ')">' + (i + 1) + '</button>';
+  }
+  document.getElementById('pagination').innerHTML = ph;
+}
+
+function numberFormat(v) {
+  if (v === null || v === undefined || v === 0) return '—';
+  return v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function goPage(p) { PAGE = p; renderTable(); }
+
+function sortTable(col) {
+  if (SORT_COL === col) SORT_DIR *= -1;
+  else { SORT_COL = col; SORT_DIR = 1; }
+  renderTable();
+}
+
+function showDetail(id) {
+  var d = DATA.find(x => x.id === id);
+  if (!d) return;
+  
+  document.getElementById('modalTitle').textContent = '#' + d.id + ' ' + d.desc;
+  
+  var h = '';
+  h += '<div class="stats" style="margin-bottom:12px">';
+  h += '<div class="stat-card"><div class="label">ราคาเรา (@วัสดุ)</div><div class="value accent">' + numberFormat(d.our_rate) + '</div></div>';
+  h += '<div class="stat-card"><div class="label">ราคาตลาดล่าสุด</div><div class="value ' + (d.latest_price ? 'green' : '') + '">' + (d.latest_price ? numberFormat(d.latest_price) : '—') + '</div></div>';
+  h += '<div class="stat-card"><div class="label">หน่วย</div><div class="value">' + (d.unit || '—') + '</div></div>';
+  h += '<div class="stat-card"><div class="label">แหล่งที่มา</div><div class="value" style="font-size:14px">' + (d.source || '—') + '</div></div>';
+  h += '</div>';
+  
+  // Timeline
+  if (d.timeline && d.timeline.length > 1) {
+    h += '<h3 style="margin:16px 0 8px;font-size:14px">📈 แนวโน้มราคา</h3>';
+    h += '<div class="modal-chart" id="detailChart"></div>';
+    h += '<table style="margin-top:12px;font-size:12px"><thead><tr><th>วันที่</th><th>สัปดาห์</th><th class="n">ราคา</th><th>แหล่ง</th></tr></thead><tbody>';
+    d.timeline.slice().reverse().forEach(t => {
+      h += '<tr><td>' + t.date + '</td><td>' + t.week + '</td><td class="n">' + numberFormat(t.price) + '</td><td>' + (t.source || 'manual') + '</td></tr>';
+    });
+    h += '</tbody></table>';
+    
+    // Draw chart after modal opens
+    setTimeout(() => drawChart(d.timeline), 100);
+  } else {
+    h += '<p style="color:var(--dim)">⏳ ยังไม่มีการบันทึกราคา</p>';
+  }
+  
+  // Search URLs
+  h += '<h3 style="margin:16px 0 8px;font-size:14px">🔍 link ค้นหาราคา</h3>';
+  var clean = d.desc.replace(/^[-\s]+/, '').substring(0, 60);
+  h += '<div class="search-urls">';
+  [['Google Shopping', 'https://www.google.com/search?q=' + encodeURIComponent(clean + ' ราคา') + '&tbm=shop'],
+   ['Boonthavorn', 'https://www.boonthavorn.com/catalogsearch/result/?q=' + encodeURIComponent(clean)],
+   ['Thai Watsadu', 'https://www.thaiwatsadu.com/th/search?q=' + encodeURIComponent(clean)]].forEach(s => {
+    h += '• <a href="' + s[1] + '" target="_blank" style="color:var(--accent)">' + s[0] + '</a>\n';
+  });
+  h += '</div>';
+  
+  document.getElementById('modalBody').innerHTML = h;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function drawChart(timeline) {
+  var canvas = document.getElementById('detailChart');
+  var pts = timeline.map(t => t.price).filter(p => p);
+  if (pts.length < 2) return;
+  
+  var w = canvas.clientWidth || 700;
+  var hh = 250;
+  canvas.innerHTML = '<svg width="' + w + '" height="' + hh + '" style="background:var(--bg);border-radius:8px"></svg>';
+  
+  var svg = canvas.querySelector('svg');
+  var min = Math.min(...pts), max = Math.max(...pts), range = (max - min) || 1;
+  var pad = {t: 20, r: 20, b: 30, l: 60};
+  var cw = w - pad.l - pad.r;
+  var ch = hh - pad.t - pad.b;
+  
+  // Y-axis labels
+  var steps = 5;
+  for (var i = 0; i <= steps; i++) {
+    var val = min + (max - min) * (steps - i) / steps;
+    var y = pad.t + ch * i / steps;
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', pad.l); line.setAttribute('y1', y);
+    line.setAttribute('x2', w - pad.r); line.setAttribute('y2', y);
+    line.setAttribute('stroke', '#2a2a2a'); line.setAttribute('stroke-width', '0.5');
+    svg.appendChild(line);
+    
+    var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', pad.l - 5); text.setAttribute('y', y + 4);
+    text.setAttribute('text-anchor', 'end'); text.setAttribute('fill', '#888');
+    text.setAttribute('font-size', '11');
+    text.textContent = val.toLocaleString();
+    svg.appendChild(text);
+  }
+  
+  // Line
+  var xStep = cw / (pts.length - 1);
+  var path = '';
+  pts.forEach((p, i) => {
+    var x = pad.l + i * xStep;
+    var y = pad.t + ch * (1 - (p - min) / range);
+    path += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+  });
+  
+  var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  line.setAttribute('d', path);
+  line.setAttribute('fill', 'none');
+  line.setAttribute('stroke', '#00e676');
+  line.setAttribute('stroke-width', '2');
+  svg.appendChild(line);
+  
+  // Area fill
+  var areaPath = path + ' L' + (pad.l + (pts.length - 1) * xStep).toFixed(1) + ',' + (pad.t + ch).toFixed(1) + ' L' + pad.l.toFixed(1) + ',' + (pad.t + ch).toFixed(1) + ' Z';
+  var area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  area.setAttribute('d', areaPath);
+  area.setAttribute('fill', 'rgba(0,230,118,0.1)');
+  svg.appendChild(area);
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+function refreshData() {
+  // Reload from server with cache busting
+  fetch('price_report.json?v=' + Date.now())
+    .then(r => r.json())
+    .then(d => {
+      DATA = d;
+      updateStats();
+      renderTable();
+      updateLastUpdate();
+    });
+}
+
+function showSearchUrls() {
+  var h = '<p style="font-size:13px">Top 20 รายการ — เปิด link เพื่อค้นหา:</p>';
+  var topItems = DATA.slice(0, 20);
+  topItems.forEach(d => {
+    var clean = d.desc.replace(/^[-\s]+/, '').substring(0, 60);
+    h += '<div style="margin:6px 0;font-size:12px">';
+    h += '<strong>#' + d.id + '</strong> ' + d.desc.substring(0, 80) + '<br>';
+    h += '<span style="color:var(--dim)">';
+    h += '• <a href="https://www.google.com/search?q=' + encodeURIComponent(clean + ' ราคา') + '&tbm=shop" target="_blank" style="color:var(--accent)">Google Shop</a>';
+    h += ' • <a href="https://www.boonthavorn.com/catalogsearch/result/?q=' + encodeURIComponent(clean) + '" target="_blank" style="color:var(--accent)">Boonthavorn</a>';
+    h += ' • <a href="https://www.thaiwatsadu.com/th/search?q=' + encodeURIComponent(clean) + '" target="_blank" style="color:var(--accent)">Thai Watsadu</a>';
+    h += '</span></div>';
+  });
+  document.getElementById('searchUrlContent').innerHTML = h;
+  document.getElementById('urlModal').classList.add('show');
+}
+
+loadData();
+</script>
+</body>
+</html>

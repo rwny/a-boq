@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เปรียบเทียบข้อมูลเหล็ก 2 แหล่ง</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f5f5f5;color:#222;padding:12px}
+h1{font-size:18px;margin-bottom:4px}
+h2{font-size:15px;margin:10px 0 4px;color:#1a3a5c}
+.info{font-size:12px;color:#666;margin-bottom:8px}
+.nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.nav a{padding:4px 10px;border-radius:4px;font-size:12px;cursor:pointer;background:#e0e0e0;text-decoration:none;color:#333}
+.nav a.active{background:#2a5a8c;color:#fff}
+.match{background:#e8f5e9}
+.diff{background:#fff3e0}
+.miss{background:#ffebee;opacity:0.6}
+.ok{color:#2e7d32}
+.warn{color:#e65100}
+.err{color:#c62828}
+table{font-size:11px;border-collapse:collapse;width:auto}
+th{background:#3a6a9c;color:#fff;padding:3px 5px;white-space:nowrap;font-size:10px;position:sticky;top:0}
+td{padding:2px 4px;border-bottom:1px solid #ddd;white-space:nowrap}
+td.r{text-align:right}
+td.l{text-align:left}
+.n0{background:#fff}
+.n1{background:#f8f9fc}
+</style>
+</head>
+<body>
+
+<h1>🔍 เปรียบเทียบข้อมูลเหล็ก 2 แหล่ง</h1>
+<p class="info">Steel_Table.xls (เดิม) vs Table1Metric (ใหม่) — สีส้ม = ต่างกัน, สีแดง = ไม่มีในอีกแหล่ง</p>
+
+<div class="nav" id="nav">
+  <a class="active" onclick="showType('H')">H-Beam</a>
+  <a onclick="showType('I')">I-Beam</a>
+  <a onclick="showType('C')">Channel</a>
+  <a onclick="showType('L')">Angle</a>
+</div>
+
+<div id="result"></div>
+
+<script>
+var ALL = [];
+fetch('steel_all.json').then(function(r){return r.json();}).then(function(d){
+  ALL = d;
+  showType('H');
+});
+
+function sz(item) {
+  if (item.size && item.size.length > 3) return item.size;
+  var a = item.A_mm || '';
+  var b = item.B_mm ? 'x'+item.B_mm : '';
+  var w = item.weight_kg_m ? ' ('+item.weight_kg_m+' kg/m)' : '';
+  return a + b + w;
+}
+
+function showType(group) {
+  var map = {
+    H: {old:['Wide Flange Shape'], new:['Wide_Flange']},
+    I: {old:['I - Beam'], new:['I-Beam']},
+    C: {old:['Channel','Light_lip_Channel'], new:['C-Channel_Back','C-Channel_In']},
+    L: {old:['Equal_Angles','Unequal_Angle'], new:['Equal_Angle','Equal_Angle_Light','UnEqual_Angle','UnEqual_Angle_Light','UnEqual_Angle_Short']}
+  };
+  var m = map[group];
+  if (!m) return;
+  
+  var old = ALL.filter(function(d){return m.old.indexOf(d._type)>=0;});
+  var news = ALL.filter(function(d){return m.new.indexOf(d._type)>=0;});
+  
+  // Build key: (A_mm, B_mm)
+  var oldMap = {}, newMap = {};
+  old.forEach(function(d){
+    var a = Math.round(d.A_mm||0), b = Math.round(d.B_mm||0);
+    oldMap[a+'x'+b] = d;
+  });
+  news.forEach(function(d){
+    var a = Math.round(d.A_mm||0), b = Math.round(d.B_mm||0);
+    newMap[a+'x'+b] = d;
+  });
+  
+  var keys = Object.keys(oldMap).concat(Object.keys(newMap));
+  keys = keys.filter(function(k,i){return keys.indexOf(k)===i;}).sort(function(a,b){
+    var aa=a.split('x')[0]*1, ba=b.split('x')[0]*1;
+    return aa-ba || a.split('x')[1]*1-b.split('x')[1]*1;
+  });
+  
+  var fields = [['weight_kg_m','นน.กก./ม.',1],['area_cm2','พื้นที่ cm²',1],['Ix_cm4','Ix cm⁴',0],['Iy_cm4','Iy cm⁴',0]];
+  
+  var html = '<table><tr><th>ขนาด</th>';
+  fields.forEach(function(f){
+    html += '<th colspan="2">'+f[1]+'</th>';
+  });
+  html += '<th>สถานะ</th></tr>';
+  
+  keys.forEach(function(key,ri){
+    var o = oldMap[key], n = newMap[key];
+    var cls = ri%2===0?'n0':'n1';
+    if (o && n) {
+      // Compare
+      var allOk = true;
+      var row = '<tr class="'+cls+'"><td class="l">'+key+'</td>';
+      fields.forEach(function(f){
+        var ov = o[f[0]], nv = n[f[0]];
+        var ov_s = ov!==null&&ov!==undefined ? (typeof ov==='number'?ov.toFixed(f[2]):ov) : '-';
+        var nv_s = nv!==null&&nv!==undefined ? (typeof nv==='number'?nv.toFixed(f[2]):nv) : '-';
+        var ratio = ov>0&&nv>0? Math.abs(ov-nv)/Math.max(ov,nv)*100 : 0;
+        var diff = ratio > 2;
+        if (diff) allOk = false;
+        row += '<td class="r'+(diff?' warn':'')+'">'+ov_s+'</td>';
+        row += '<td class="r'+(diff?' warn':'')+'">'+nv_s+'</td>';
+      });
+      row += '<td>'+(allOk?'<span class="ok">✓ ตรง</span>':'<span class="warn">⚠ ต่าง</span>')+'</td></tr>';
+      html += row;
+    } else if (o && !n) {
+      html += '<tr class="miss"><td class="l">'+key+'</td>';
+      fields.forEach(function(f){
+        var ov = o[f[0]];
+        var ov_s = ov!==null&&ov!==undefined ? (typeof ov==='number'?ov.toFixed(f[2]):ov) : '-';
+        html += '<td class="r">'+ov_s+'</td><td class="r err">-</td>';
+      });
+      html += '<td class="err">✗ ไม่มีใน Metric</td></tr>';
+    } else {
+      html += '<tr class="miss"><td class="l">'+key+'</td>';
+      fields.forEach(function(f){
+        var nv = n[f[0]];
+        var nv_s = nv!==null&&nv!==undefined ? (typeof nv==='number'?nv.toFixed(f[2]):nv) : '-';
+        html += '<td class="r err">-</td><td class="r">'+nv_s+'</td>';
+      });
+      html += '<td class="err">✗ ไม่มีในเดิม</td></tr>';
+    }
+  });
+  html += '</table>';
+  
+  var oldC = old.length, newC = news.length;
+  document.getElementById('result').innerHTML = 
+    '<p class="info">เดิม: '+oldC+' รายการ | ใหม่: '+newC+' รายการ | ตรงกัน: '+keys.filter(function(k){return oldMap[k]&&newMap[k];}).length+' รายการ | ต่าง: '+keys.filter(function(k){return oldMap[k]&&newMap[k];}).length+'</p>'
+    + html;
+  
+  document.querySelectorAll('.nav a').forEach(function(a){a.classList.remove('active');});
+  document.querySelectorAll('.nav a').forEach(function(a){
+    if (a.onclick.toString().includes("'"+group+"'")) a.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

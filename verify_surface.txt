@@ -1,0 +1,39 @@
+================================================================================
+SURFACE AREA VERIFICATION REPORT
+Total items checked: 422
+Items where SA is correct (within 2.0%): 415
+Items with issues (diff > 2.0%): 7
+Items missing SA entirely: 0
+Items with no formula available: 0
+================================================================================
+
+--- Summary by Type ---
+Type                       Total  Correct   Issues  Missing  NoFormula
+-----------------------------------------------------------------
+BLACK PLATE                   14       14        0        0          0
+C-Channel_Back                17       17        0        0          0
+C-Channel_In                  17       17        0        0          0
+Channel                       17       17        0        0          0
+Equal_Angle                   47       47        0        0          0
+Equal_Angle_Light             47       47        0        0          0
+GALVANIZED                     6        4        2        0          0
+I-Beam                        20       20        0        0          0
+Light_lip_Channel             40       40        0        0          0
+Round Bar                     12        7        5        0          0
+T-Profile                     66       66        0        0          0
+UnEqual_Angle                 13       13        0        0          0
+UnEqual_Angle_Light           13       13        0        0          0
+UnEqual_Angle_Short           13       13        0        0          0
+Wide_Flange                   80       80        0        0          0
+
+
+--- ITEMS WITH ISSUES (diff > 2.0%) ---
+  Idx Type                   Size                               Actual   Expected    Diff%
+------------------------------------------------------------------------------------------
+   58 Round Bar              1-1/4" X 6 m.                    0.019900   0.099746  401.23%
+   59 Round Bar              1-1/2" X 6 m.                    0.039900   0.119695  199.99%
+   60 Round Bar              1-3/4" X 6 m.                    0.059800   0.139644  133.52%
+   62 Round Bar              2-1/2" X 6 m.                    0.039900   0.199491  399.98%
+   64 Round Bar              3-1/2" X 6 m.                    0.039900   0.279288  599.97%
+   66 GALVANIZED             1/2"                             0.079800   0.039898   50.00%
+   68 GALVANIZED             1-1/2"                           0.079800   0.119695   49.99%

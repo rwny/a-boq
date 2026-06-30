@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สพฐ 69 — บัญชีราคาค่าวัสดุและค่าแรงงาน</title>
+<link rel="stylesheet" href="https://unpkg.com/lucide@latest">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0c10;color:#c8ccd4;font-family:'Segoe UI','Sarabun','Tahoma',sans-serif;padding:12px;font-size:15px}
+.header{position:sticky;top:0;z-index:100;background:#0a0c10;padding:10px 0 6px;text-align:center;border-bottom:1px solid #1e2835}
+.header h1{font-size:20px;font-weight:700;color:#e8eaed;margin:0}
+.header p{font-size:12px;color:#6b7280;margin:0}
+.header a{color:#6b7280;font-size:13px;text-decoration:none;transition:.2s}
+.header a:hover{color:#00e676}
+.topnav{display:flex;flex-wrap:wrap;gap:4px;padding:6px 0 4px}
+.topnav a{background:#0a0c10;color:#6b7280;border:1px solid #1e2835;border-radius:10px;padding:6px 14px;font-size:13px;cursor:pointer;transition:.2s;text-decoration:none;white-space:nowrap;user-select:none}
+.topnav a:hover{background:#12141c;color:#c8ccd4;border-color:#2a3a35}
+.topnav a.active{background:linear-gradient(135deg,#00e676,#00c853);color:#0a0c10;border-color:#00e676;font-weight:700;box-shadow:0 0 20px rgba(0,230,118,.2)}
+.search-box{padding:8px 0;display:flex;gap:10px;align-items:center}
+.search-box input{flex:1;min-width:120px;background:#0a0c10;border:2px solid #1e2835;border-radius:12px;padding:10px 14px;color:#e8eaed;font-size:15px;outline:none;transition:.25s}
+.search-box input:focus{border-color:#00e676;box-shadow:0 0 0 3px rgba(0,230,118,.12)}
+.search-box input::placeholder{color:#4b5563}
+.search-box .count{font-size:13px;color:#6b7280;white-space:nowrap}
+.stats{font-size:12px;color:#4b5563;padding:4px 0 8px}
+.table-wrap{overflow-y:auto;max-height:calc(100vh - 185px);margin:0}
+table{width:auto;border-collapse:collapse;font-size:13px}
+th{background:#0a0c10;color:#6b7280;font-weight:600;padding:6px 10px;white-space:nowrap;position:sticky;top:0;font-size:12px;border-bottom:2px solid #1e2835}
+th:first-child{text-align:left;width:90px}
+th:nth-child(2){min-width:250px}
+th:nth-child(3){width:55px;text-align:center}
+th:nth-child(4),th:nth-child(5){width:95px;text-align:right}
+th:nth-child(6){width:160px}
+td{padding:4px 10px;border-bottom:1px solid #181b24;white-space:nowrap}
+td:nth-child(1){font-family:Consolas,'Courier New',monospace;color:#00e676;font-weight:600;font-size:12px;cursor:pointer}
+td:nth-child(2){cursor:pointer}
+td:nth-child(3){text-align:center;color:#9aa0a6;font-size:12px}
+td:nth-child(4),td:nth-child(5){text-align:right;font-family:Consolas,'Courier New',monospace;font-size:13px;color:#9aa0a6;cursor:pointer}
+td:nth-child(6){color:#4b5563;font-size:12px}
+tr.header-row td{color:#00e676;font-weight:600;font-size:14px;padding:8px 10px;border-bottom:2px solid #1e2835;background:transparent!important}
+mark{background:#00e676;color:#0a0c10;padding:1px 4px;border-radius:3px;font-weight:600}
+tr:hover td{background:#2a3a4a !important}
+tr.header-row:hover td{background:transparent!important}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a3a5c;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><i data-lucide="scroll-text" style="width:20px;height:20px;vertical-align:-3px"></i> สพฐ 69 — บัญชีราคาวัสดุฯ</h1>
+  <p>สำนักงานคณะกรรมการการศึกษาขั้นพื้นฐาน (สพฐ.) — กลุ่มออกแบบและก่อสร้าง
+    <a href="dashboard.html"><i data-lucide="layout-dashboard" style="width:12px;height:12px;vertical-align:-1px"></i> Dashboard</a>
+  </p>
+</div>
+
+<div class="topnav" id="topNav">
+  <a class="active" data-cat="ALL">ทั้งหมด</a>
+  <a data-cat="A">🏗️ งานโครงสร้าง</a>
+  <a data-cat="B">🏛️ งานสถาปัตยกรรม</a>
+  <a data-cat="C">⚡ งานระบบไฟฟ้า</a>
+  <a data-cat="E">🚰 งานระบบสุขาภิบาล</a>
+</div>
+
+<div class="search-box">
+  <i data-lucide="search" style="width:16px;height:16px;color:#4b5563;flex-shrink:0"></i>
+  <input type="text" id="searchInput" placeholder="ค้นหารายการ พิมพ์รหัส หรือชื่อวัสดุ..." oninput="filterTable()">
+  <span class="count" id="countInfo"></span>
+</div>
+
+<div class="stats" id="statsBar"></div>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+  <th>CODE</th>
+  <th>รายการ</th>
+  <th style="text-align:center">หน่วย</th>
+  <th style="text-align:right">ค่าวัสดุ</th>
+  <th style="text-align:right">ค่าแรง</th>
+  <th>หมายเหตุ</th>
+</tr></thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+<div class="toast" id="toast">✅ คัดลอกแล้ว</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+fetch('spst_data.json')
+  .then(r => r.json())
+  .then(data => {
+    window.SPST_DATA = data;
+    window.currentCat = 'ALL';
+    renderTable();
+  });
+
+function nf(v) {
+  if (v === null || v === undefined) return '-';
+  return v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyText(el) {
+  var text = el.textContent.trim();
+  if (!text) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    var toast = document.getElementById('toast');
+    toast.textContent = '✅ '+text;
+    toast.classList.add('show');
+    setTimeout(function(){toast.classList.remove('show');}, 1500);
+  }
+}
+
+function renderTable() {
+  var data = window.SPST_DATA || [];
+  var cat = window.currentCat || 'ALL';
+  var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  
+  var filtered = data.filter(function(item) {
+    if (cat !== 'ALL') {
+      var code = (item.code || '').toUpperCase();
+      if (cat === 'A' && !code.startsWith('A')) return false;
+      if (cat === 'B' && !code.startsWith('B')) return false;
+      if (cat === 'C' && !code.startsWith('C')) return false;
+      if (cat === 'E' && !code.startsWith('E')) return false;
+    }
+    if (q) {
+      var desc = (item.description || '').toLowerCase();
+      var code = (item.code || '').toLowerCase();
+      var notes = (item.notes || '').toLowerCase();
+      return desc.indexOf(q) !== -1 || code.indexOf(q) !== -1 || notes.indexOf(q) !== -1;
+    }
+    return true;
+  });
+  
+  var tbody = document.getElementById('tableBody');
+  var html = '';
+  
+  filtered.forEach(function(item) {
+    var desc = item.description || '';
+    var code = item.code || '';
+    var mat = item.material_price;
+    var lab = item.labor_price;
+    var unit = item.unit || '';
+    var notes = item.notes || '';
+    
+    var isHeader = (!code || code === '') && mat === null && lab === null && desc;
+    
+    if (isHeader) {
+      html += '<tr class="header-row"><td colspan="6">' + escapeHtml(desc) + '</td></tr>';
+    } else {
+      var descDisplay = escapeHtml(desc);
+      if (q) {
+        var regex = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        descDisplay = escapeHtml(desc).replace(regex, '<mark>$1</mark>');
+      }
+      
+      html += '<tr>'
+        + '<td onclick="copyText(this)">' + escapeHtml(code) + '</td>'
+        + '<td onclick="copyText(this)">' + descDisplay + '</td>'
+        + '<td>' + escapeHtml(unit) + '</td>'
+        + '<td onclick="copyText(this)">' + nf(mat) + '</td>'
+        + '<td onclick="copyText(this)">' + nf(lab) + '</td>'
+        + '<td class="notes">' + escapeHtml(notes) + '</td>'
+        + '</tr>';
+    }
+  });
+  
+  tbody.innerHTML = html;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  
+  var totalMat = 0, totalLab = 0;
+  filtered.forEach(function(item) {
+    if (item.material_price) totalMat += item.material_price;
+    if (item.labor_price) totalLab += item.labor_price;
+  });
+  var dataRows = filtered.filter(function(item) {
+    return item.code && item.code !== '';
+  });
+  document.getElementById('statsBar').textContent = 'แสดง ' + dataRows.length + ' รายการ' 
+    + ' (รวม ' + totalMat.toLocaleString() + ' บาท / แรง ' + totalLab.toLocaleString() + ' บาท)'
+    + (filtered.length < data.length ? ' จากทั้งหมด ' + data.length + ' รายการ' : '');
+  document.getElementById('countInfo').textContent = dataRows.length + ' รายการ';
+}
+
+function filterTable() { renderTable(); }
+
+document.getElementById('topNav').addEventListener('click', function(e) {
+  if (e.target.tagName === 'A') {
+    document.querySelectorAll('#topNav a').forEach(function(a) { a.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.currentCat = e.target.dataset.cat;
+    renderTable();
+  }
+});
+</script>
+</body>
+</html>

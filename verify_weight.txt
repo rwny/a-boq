@@ -1,0 +1,60 @@
+================================================================================
+STEEL WEIGHT PER METER VERIFICATION REPORT
+Generated: steel_all.json (422 items)
+================================================================================
+
+METHOD: expected_weight = area_cm2 × 0.785 (for items with area_cm2)
+For items without area_cm2: calculated from dimensions.
+
+Total items: 422
+Items checked via area_cm2 × 0.785: 390
+  OK (diff ≤ 3%): 390
+  ISSUES (diff > 3%): 0
+Items without area_cm2 (manual calc): 32
+
+============================================================
+MANUAL CALCULATION: BLACK PLATE (14 items)
+============================================================
+  1.5 mm. X 4' X 8'                             → computed weight_per_m: 14.356 kg/m
+  2.0 mm. X 4' X 8'                             → computed weight_per_m: 19.141 kg/m
+  2.5 mm. X 4' X 8'                             → computed weight_per_m: 23.927 kg/m
+  3.0 mm. X 4' X 8'                             → computed weight_per_m: 28.712 kg/m
+  4.0 mm. X 4' X 8'                             → computed weight_per_m: 38.283 kg/m
+  4.5 mm. X 4' X 8'                             → computed weight_per_m: 43.068 kg/m
+  5.0 mm. X 4' X 8'                             → computed weight_per_m: 47.854 kg/m
+  6.0 mm. X 4' X 8'                             → computed weight_per_m: 57.424 kg/m
+  8.0 mm. X 4' X 8'                             → computed weight_per_m: 76.566 kg/m
+  9.0 mm. X 4' X 8'                             → computed weight_per_m: 86.136 kg/m
+  12 mm. X 4' X 8'                              → computed weight_per_m: 114.849 kg/m
+  15 mm. X 4' X 8'                              → computed weight_per_m: 143.561 kg/m
+  19 mm. X 4' X 8'                              → computed weight_per_m: 181.844 kg/m
+  25 mm. X 4' X 8'                              → computed weight_per_m: 239.268 kg/m
+
+============================================================
+MANUAL CALCULATION: Round Bar (12 items)
+============================================================
+  3/8" X 6 m.                                   → D=9.5mm → weight_kg_m = 0.559
+  1/2" X 6 m.                                   → D=12.7mm → weight_kg_m = 0.994
+  3/4" X 6 m.                                   → D=19.0mm → weight_kg_m = 2.237
+  1" X 6 m.                                     → D=25.4mm → weight_kg_m = 3.978
+  1-1/4" X 6 m.                                 → D=31.8mm → weight_kg_m = 6.215
+  1-1/2" X 6 m.                                 → D=38.1mm → weight_kg_m = 8.950
+  1-3/4" X 6 m.                                 → D=44.4mm → weight_kg_m = 12.182
+  2" X 6 m.                                     → D=50.8mm → weight_kg_m = 15.911
+  2-1/2" X 6 m.                                 → D=63.5mm → weight_kg_m = 24.860
+  3" X 6 m.                                     → D=76.2mm → weight_kg_m = 35.799
+  3-1/2" X 6 m.                                 → D=88.9mm → weight_kg_m = 48.726
+  4" X 6 m.                                     → D=101.6mm → weight_kg_m = 63.642
+
+============================================================
+MANUAL CALCULATION: GALVANIZED (6 items)
+============================================================
+  1/2"                                          → D=12.7mm → weight_kg_m = 0.994 (solid bar ref)
+  1"                                            → D=25.4mm → weight_kg_m = 3.978 (solid bar ref)
+  1-1/2"                                        → D=38.1mm → weight_kg_m = 8.950 (solid bar ref)
+  2"                                            → D=50.8mm → weight_kg_m = 15.911 (solid bar ref)
+  3"                                            → D=76.2mm → weight_kg_m = 35.799 (solid bar ref)
+  4"                                            → D=101.6mm → weight_kg_m = 63.642 (solid bar ref)
+
+
+--- END OF REPORT ---
