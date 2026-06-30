@@ -633,8 +633,43 @@ document.addEventListener("keydown", function(e) {
   }
 });
 
+// === Theme Toggle Functions ===
+function initThemeToggle() {
+  var theme = localStorage.getItem('theme') || 'dark';
+  updateThemeUI(theme);
+}
+
+function updateThemeUI(theme) {
+  var btn = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+  var text = document.getElementById('themeText');
+  if (!btn || !icon || !text) return;
+  
+  if (theme === 'light') {
+    icon.setAttribute('data-lucide', 'moon');
+    text.textContent = 'Dark Mode';
+  } else {
+    icon.setAttribute('data-lucide', 'sun');
+    text.textContent = 'Light Mode';
+  }
+  
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeUI(newTheme);
+}
+
 // Init
 buildTopNav();
 switchProject("ALL");
+initThemeToggle();
 // Apply Lucide icons after render
 if (typeof lucide !== "undefined") lucide.createIcons();

@@ -5,6 +5,10 @@
   if (localStorage.getItem('boq_auth') !== 'true') {
     window.location.href = 'login.html';
   }
+  (function() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
 </script>
 <meta charset="UTF-8">
 <title>BOQ Dashboard — รวมทุกโครงการ</title>
@@ -14,6 +18,9 @@
 <body>
 <div class="container">
 <div class="header">
+  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="เปลี่ยนโหมดสี">
+    <i data-lucide="sun" id="themeIcon"></i><span id="themeText">Light Mode</span>
+  </button>
   <div id="topNav" class="topnav">
       <a class="tn tn-active" data-proj="ALL">ภาพรวม</a>
       <a class="tn" data-proj="AR03">AR-03-ext</a>
