@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ — BOQ & Steel Dashboard</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+      background-attachment: fixed;
+      font-family: 'Outfit', 'Prompt', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+      color: white;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 60%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.85rem 1rem 0.85rem 2.75rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-submit:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      min-height: 1.2rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="logo-container">
+      <i data-lucide="lock" size="24"></i>
+    </div>
+    <h1>เข้าสู่ระบบ</h1>
+    <p class="subtitle">ระบบวิเคราะห์ข้อมูลถอดแบบประเมินราคา (BOQ)</p>
+    
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="password">รหัสผ่านเพื่อเข้าใช้งาน</label>
+        <div class="input-wrapper">
+          <i data-lucide="key" size="18"></i>
+          <input type="password" id="password" placeholder="กรอกรหัสผ่าน..." required autocomplete="current-password">
+        </div>
+      </div>
+      <button type="submit" class="btn-submit">ยืนยันรหัสผ่าน</button>
+      <div id="errorMsg" class="error-msg">รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง</div>
+    </form>
+  </div>
+
+  <script>
+    // เคลียร์สิทธิ์เข้าถึงเดิมเมื่อเข้ามาหน้านี้ใหม่ เพื่อความปลอดภัย
+    localStorage.removeItem('boq_auth');
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const passwordInput = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      // รหัสผ่านเข้าใช้งาน (สามารถแก้ไขตรงนี้ได้ตามต้องการ)
+      const CORRECT_PASSWORD = 'ar3d-boq-secure'; 
+
+      if (passwordInput === CORRECT_PASSWORD) {
+        // บันทึกสถานะการยืนยันตัวตนสำเร็จ
+        localStorage.setItem('boq_auth', 'true');
+        // นำทางไปหน้า Dashboard
+        window.location.href = 'dashboard.html';
+      } else {
+        errorMsg.style.display = 'block';
+        document.getElementById('password').value = '';
+      }
+    }
+
+    // Initialize Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

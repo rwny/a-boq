@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<script>
+  if (localStorage.getItem('boq_auth') !== 'true') {
+    window.location.href = '../login.html';
+  }
+</script>
 <meta charset="UTF-8">
 <title>AR-20 ชอปส้ม — BOQ Dashboard</title>
 <link rel="stylesheet" href="dashboard.css">
