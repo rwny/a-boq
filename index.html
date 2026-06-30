@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR3D BOQ Dashboard Portal</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glow-color: rgba(99, 102, 241, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+      background-attachment: fixed;
+      font-family: 'Outfit', 'Prompt', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* Header Section */
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+      position: relative;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-container i {
+      color: white;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-title i {
+      color: var(--accent-purple);
+    }
+
+    /* Main Grid for Primary Dashboards */
+    .main-dashboards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    /* Portal Card Style */
+    .card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 
+        0 20px 40px -15px var(--glow-color),
+        0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover .card-icon {
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--text-main);
+    }
+
+    .card-icon.blue { color: #60a5fa; }
+    .card-icon.purple { color: #a78bfa; }
+    .card-icon.pink { color: #f472b6; }
+    .card-icon.emerald { color: #34d399; }
+    .card-icon.amber { color: #fbbf24; }
+
+    .go-btn {
+      color: var(--text-muted);
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .card:hover .go-btn {
+      color: var(--text-main);
+      transform: translateX(4px);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 60%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    /* Badge list */
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Sub-Projects Section */
+    .projects-section {
+      margin-top: 2rem;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .project-card {
+      background: rgba(30, 41, 59, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .project-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(139, 92, 246, 0.3);
+      background: rgba(30, 41, 59, 0.5);
+      box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.15);
+    }
+
+    .project-code {
+      font-family: monospace;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-purple);
+      font-weight: 600;
+    }
+
+    .project-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .project-meta {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: auto;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 6rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .main-dashboards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <i data-lucide="layout-dashboard"></i>
+      </div>
+      <h1>BOQ & Steel Management System</h1>
+      <p class="subtitle">ระบบวิเคราะห์ข้อมูลถอดแบบประเมินราคา (BOQ) และจัดการโครงสร้างเหล็กระบบ AR3D</p>
+    </header>
+
+    <!-- Section 1: Global Tools -->
+    <section>
+      <h2 class="section-title">
+        <i data-lucide="layers"></i>
+        ระบบบริหารจัดการส่วนกลาง (Global Dashboards)
+      </h2>
+      <div class="main-dashboards">
+        
+        <!-- BOQ Dashboard -->
+        <a href="dashboard.html" class="card">
+          <div>
+            <div class="card-header">
+              <div class="card-icon blue">
+                <i data-lucide="bar-chart-3"></i>
+              </div>
+              <div class="go-btn">
+                <i data-lucide="arrow-right"></i>
+              </div>
+            </div>
+            <h3 class="card-title">BOQ Dashboard (รวมทุกโครงการ)</h3>
+            <p class="card-desc">แดชบอร์ดภาพรวม รวบรวมสรุปรายการค่าวัสดุและค่าแรงจากทุกโครงการพร้อมเครื่องมือค้นหาข้อมูล</p>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Overview</span>
+            <span class="tag">Pricing</span>
+            <span class="tag">Search</span>
+          </div>
+        </a>
+
+        <!-- Compare Steel -->
+        <a href="compare_steel.html" class="card">
+          <div>
+            <div class="card-header">
+              <div class="card-icon pink">
+                <i data-lucide="git-compare"></i>
+              </div>
+              <div class="go-btn">
+                <i data-lucide="arrow-right"></i>
+              </div>
+            </div>
+            <h3 class="card-title">Steel Comparison</h3>
+            <p class="card-desc">ระบบเปรียบเทียบคุณสมบัติเหล็ก ขนาด น้ำหนัก และการใช้งานในแต่ละโครงการเพื่อการจัดซื้อ</p>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Steel</span>
+            <span class="tag">Comparison</span>
+            <span class="tag">Procurement</span>
+          </div>
+        </a>
+
+        <!-- Price Monitor -->
+        <a href="price_monitor.html" class="card">
+          <div>
+            <div class="card-header">
+              <div class="card-icon amber">
+                <i data-lucide="trending-up"></i>
+              </div>
+              <div class="go-btn">
+                <i data-lucide="arrow-right"></i>
+              </div>
+            </div>
+            <h3 class="card-title">Price Monitor</h3>
+            <p class="card-desc">เครื่องมือติดตามและวิเคราะห์ความผันผวนของราคาวัสดุก่อสร้างและค่าแรงแยกตามหมวดหมู่</p>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Price Tracking</span>
+            <span class="tag">Trends</span>
+            <span class="tag">Analytics</span>
+          </div>
+        </a>
+
+        <!-- Steel Specs -->
+        <a href="steel.html" class="card">
+          <div>
+            <div class="card-header">
+              <div class="card-icon emerald">
+                <i data-lucide="database"></i>
+              </div>
+              <div class="go-btn">
+                <i data-lucide="arrow-right"></i>
+              </div>
+            </div>
+            <h3 class="card-title">Steel Specifications</h3>
+            <p class="card-desc">ฐานข้อมูลมาตรฐานเหล็กรูปพรรณ ขนาด หน้าตัด และน้ำหนักมาตรฐานสำหรับงานวิศวกรรมโครงสร้าง</p>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Reference</span>
+            <span class="tag">Standards</span>
+            <span class="tag">Engineering</span>
+          </div>
+        </a>
+
+        <!-- SPST Dashboard -->
+        <a href="spst.html" class="card">
+          <div>
+            <div class="card-header">
+              <div class="card-icon purple">
+                <i data-lucide="cpu"></i>
+              </div>
+              <div class="go-btn">
+                <i data-lucide="arrow-right"></i>
+              </div>
+            </div>
+            <h3 class="card-title">SPST Dashboard</h3>
+            <p class="card-desc">ระบบประมวลผลและแสดงโครงสร้างพิเศษ สำหรับวิเคราะห์ข้อมูลเฉพาะเจาะจงของระบบโครงสร้าง</p>
+          </div>
+          <div class="card-tags">
+            <span class="tag">Special Structure</span>
+            <span class="tag">Components</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Section 2: Individual Projects -->
+    <section class="projects-section">
+      <h2 class="section-title">
+        <i data-lucide="folder"></i>
+        แดชบอร์ดรายโครงการ (Project Dashboards)
+      </h2>
+      <div class="projects-grid">
+        
+        <a href="AR03/dashboard.html" class="project-card">
+          <span class="project-code">AR03</span>
+          <span class="project-name">AR-03-ext</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR04/dashboard.html" class="project-card">
+          <span class="project-code">AR04</span>
+          <span class="project-name">AR-04</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR09/dashboard.html" class="project-card">
+          <span class="project-code">AR09</span>
+          <span class="project-name">AR-09</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR12/dashboard.html" class="project-card">
+          <span class="project-code">AR12</span>
+          <span class="project-name">AR-12</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR15/dashboard.html" class="project-card">
+          <span class="project-code">AR15</span>
+          <span class="project-name">AR-15</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR20/dashboard.html" class="project-card">
+          <span class="project-code">AR20</span>
+          <span class="project-name">AR-20</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR23/dashboard.html" class="project-card">
+          <span class="project-code">AR23</span>
+          <span class="project-name">AR-23</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR24/dashboard.html" class="project-card">
+          <span class="project-code">AR24</span>
+          <span class="project-name">AR-24 ชอปเหล็ก</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="AR25/dashboard.html" class="project-card">
+          <span class="project-code">AR25</span>
+          <span class="project-name">AR-25</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+        <a href="KLLC/dashboard.html" class="project-card">
+          <span class="project-code">KLLC</span>
+          <span class="project-name">KLLC Project</span>
+          <span class="project-meta">แดชบอร์ดเฉพาะโครงการ</span>
+        </a>
+
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 AR3D BOQ Dashboard Portal. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
